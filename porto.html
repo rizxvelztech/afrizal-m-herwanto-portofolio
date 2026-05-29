@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en" x-data="app()" :class="{'dark':dark}" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="description" content="Afrizal Maulana - Professional Developer & Programmer | Portfolio showcasing Tic Tac Toe Game & Advanced Calculator">
+<meta name="keywords" content="portfolio, developer, programmer, Afrizal Maulana, web developer, frontend, Tic Tac Toe, Calculator">
+<meta name="author" content="Afrizal Maulana">
+<meta name="theme-color" content="#6366f1">
+<title>Afrizal Maulana — Professional Portfolio</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- Alpine.js & Tailwind -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: { 
+        display: ['Poppins', 'sans-serif'], 
+        body: ['Inter', 'sans-serif'] 
+      },
+      colors: { 
+        accent: '#6366f1', 
+        'accent-light': '#818cf8',
+        'accent-dark': '#4f46e5'
+      },
+      animation: {
+        'float': 'float 3s ease-in-out infinite',
+        'pulse-slow': 'pulse 3s ease-in-out infinite',
+        'spin-slow': 'spin 8s linear infinite',
+        'glow': 'glow 2s ease-in-out infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-15px)' },
+        },
+        glow: {
+          '0%, 100%': { boxShadow: '0 0 5px rgba(99,102,241,0.3)' },
+          '50%': { boxShadow: '0 0 25px rgba(99,102,241,0.6)' },
+        }
+      }
+    }
+  }
+}
+</script>
+
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',sans-serif;transition:background-color .3s,color .3s}
+  h1,h2,h3,h4,h5,h6{font-family:'Poppins',sans-serif}
+  
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#6366f1;border-radius:99px}
+  ::-webkit-scrollbar-thumb:hover{background:#818cf8}
+  
+  /* Reveal Animation */
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity .7s cubic-bezier(0.4,0,0.2,1),transform .7s cubic-bezier(0.4,0,0.2,1)}
+  .reveal.in{opacity:1;transform:translateY(0)}
+  .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}.d5{transition-delay:.5s}
+  
+  /* Nav Link Animation */
+  .nl{position:relative}
+  .nl::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:2px;background:#6366f1;transition:width .3s cubic-bezier(0.4,0,0.2,1)}
+  .nl:hover::after,.nl.active::after{width:100%}
+  .nl.active{color:#6366f1;font-weight:600}
+  
+  /* Shimmer Button */
+  .shimmer{position:relative;overflow:hidden}
+  .shimmer::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);transform:skewX(-20deg);transition:left .5s ease}
+  .shimmer:hover::after{left:160%}
+  
+  /* Card Hover */
+  .card-hover{transition:all .3s cubic-bezier(0.4,0,0.2,1)}
+  .card-hover:hover{transform:translateY(-6px);box-shadow:0 20px 30px -12px rgba(0,0,0,0.15)}
+  
+  /* Skill Tag */
+  .skill-tag{transition:all .2s ease}
+  .skill-tag:hover{transform:translateY(-2px);border-color:#6366f1;color:#6366f1}
+  
+  /* Profile Animation */
+  .profile-glow{animation:glow 2s ease-in-out infinite}
+  @keyframes glow{
+    0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,0.4)}
+    50%{box-shadow:0 0 0 20px rgba(99,102,241,0)}
+  }
+  
+  /* Tic Tac Toe Styles */
+  .ttt-cell{aspect-ratio:1/1;transition:all .2s ease}
+  .ttt-cell:hover:not(:disabled){transform:scale(1.05);background-color:rgba(99,102,241,0.1)}
+  .win-cell{background:linear-gradient(135deg,rgba(34,197,94,0.25),rgba(34,197,94,0.08));position:relative}
+  .win-cell::after{content:'✨';position:absolute;font-size:1.8rem;animation:sparkle .5s ease infinite}
+  @keyframes sparkle{0%,100%{opacity:0.6;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}
+  
+  /* Calculator Button */
+  .calc-btn{transition:all .1s ease}
+  .calc-btn:active{transform:scale(0.94)}
+  
+  /* Glassmorphism Effect */
+  .glass{background:rgba(255,255,255,0.03);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.05)}
+  .dark .glass{background:rgba(0,0,0,0.3)}
+  
+  [x-cloak]{display:none!important}
+</style>
+</head>
+
+<body class="bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 antialiased">
+
+<!-- ═══ NAVIGATION ═══ -->
+<header class="fixed inset-x-0 top-0 z-50 transition-all duration-300"
+  :class="scrolled ? 'bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md shadow-lg' : 'bg-transparent'">
+  <nav class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+
+    <a href="#hero" class="font-display font-bold text-2xl tracking-tight group">
+      <span class="text-zinc-800 dark:text-white">Afrizal</span>
+      <span class="text-accent group-hover:text-accent-light transition">Maulana</span>
+    </a>
+
+    <!-- Desktop Navigation -->
+    <ul class="hidden md:flex items-center gap-8 text-sm font-medium">
+      <li><a href="#about" class="nl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition" :class="activeSection==='about'?'active':''">About</a></li>
+      <li><a href="#skills" class="nl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition" :class="activeSection==='skills'?'active':''">Skills</a></li>
+      <li><a href="#projects" class="nl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition" :class="activeSection==='projects'?'active':''">Projects</a></li>
+      <li><a href="#achievements" class="nl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition" :class="activeSection==='achievements'?'active':''">Achievements</a></li>
+      <li><a href="#contact" class="nl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition" :class="activeSection==='contact'?'active':''">Contact</a></li>
+    </ul>
+
+    <div class="flex items-center gap-3">
+      <!-- Dark Mode Toggle -->
+      <button @click="toggleDarkMode" class="w-10 h-10 flex items-center justify-center rounded-full border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all hover:scale-105">
+        <svg x-show="!dark" class="w-4.5 h-4.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+        </svg>
+        <svg x-show="dark" class="w-4.5 h-4.5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+        </svg>
+      </button>
+      
+      <!-- Hire Me Button Desktop -->
+      <a href="#contact" class="hidden md:inline-flex shimmer items-center gap-2 bg-accent hover:bg-accent-dark text-white font-medium px-5 py-2.5 rounded-full transition-all text-sm hover:scale-105">
+        Hire Me <i class="fas fa-arrow-right text-xs"></i>
+      </a>
+      
+      <!-- Mobile Menu Button -->
+      <button @click="mobileMenu=!mobileMenu" class="md:hidden w-10 h-10 flex items-center justify-center rounded-full border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition">
+        <svg x-show="!mobileMenu" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg x-show="mobileMenu" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu Dropdown -->
+  <div x-show="mobileMenu" x-cloak x-transition class="md:hidden bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-800 shadow-xl">
+    <ul class="flex flex-col px-6 py-5 gap-4">
+      <li><a href="#about" @click="mobileMenu=false" class="block text-zinc-700 dark:text-zinc-300 hover:text-accent transition py-2">About</a></li>
+      <li><a href="#skills" @click="mobileMenu=false" class="block text-zinc-700 dark:text-zinc-300 hover:text-accent transition py-2">Skills</a></li>
+      <li><a href="#projects" @click="mobileMenu=false" class="block text-zinc-700 dark:text-zinc-300 hover:text-accent transition py-2">Projects</a></li>
+      <li><a href="#achievements" @click="mobileMenu=false" class="block text-zinc-700 dark:text-zinc-300 hover:text-accent transition py-2">Achievements</a></li>
+      <li><a href="#contact" @click="mobileMenu=false" class="block text-zinc-700 dark:text-zinc-300 hover:text-accent transition py-2">Contact</a></li>
+      <li class="pt-2"><a href="#contact" @click="mobileMenu=false" class="inline-flex shimmer bg-accent text-white px-6 py-2.5 rounded-full text-center justify-center w-full">Hire Me</a></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+<!-- ═══ HERO SECTION ═══ -->
+<section id="hero" class="relative min-h-screen flex items-center pt-16 overflow-hidden">
+  <!-- Background Gradients -->
+  <div class="absolute top-1/4 right-0 w-96 h-96 bg-accent/15 rounded-full blur-3xl pointer-events-none animate-pulse-slow"></div>
+  <div class="absolute bottom-1/4 left-0 w-80 h-80 bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-b from-transparent via-accent/5 to-transparent pointer-events-none"></div>
+  
+  <div class="relative z-10 max-w-6xl mx-auto px-6 py-20 w-full">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+
+      <!-- Left Content -->
+      <div>
+        <div class="reveal inline-flex items-center gap-2 bg-accent/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
+          </span>
+          <span class="text-xs font-medium text-accent">Available for work</span>
+        </div>
+        
+        <p class="reveal text-sm font-semibold text-accent tracking-wider uppercase mb-3">Hi, I'm</p>
+        <h1 class="reveal d1 font-display font-bold text-5xl md:text-6xl lg:text-7xl leading-tight mb-5">
+          Afrizal <br><span class="bg-gradient-to-r from-accent to-accent-light bg-clip-text text-transparent">Maulana</span>
+        </h1>
+        <p class="reveal d2 text-lg md:text-xl text-zinc-500 dark:text-zinc-400 leading-relaxed mb-8 max-w-lg">
+          A passionate <strong class="font-semibold text-zinc-700 dark:text-zinc-300">developer and programmer</strong> creating digital solutions through innovative code.
+        </p>
+        
+        <!-- Stats Row -->
+        <div class="reveal d3 flex gap-8 mb-10">
+          <div><div class="font-display font-bold text-3xl text-accent" x-text="'2+'">2+</div><div class="text-xs text-zinc-500">Years Experience</div></div>
+          <div><div class="font-display font-bold text-3xl text-accent" x-text="'15+'">15+</div><div class="text-xs text-zinc-500">Projects Done</div></div>
+          <div><div class="font-display font-bold text-3xl text-accent" x-text="'10+'">10+</div><div class="text-xs text-zinc-500">Happy Clients</div></div>
+        </div>
+        
+        <div class="reveal d4 flex flex-wrap gap-4">
+          <a href="#projects" class="shimmer inline-flex items-center gap-2 bg-accent hover:bg-accent-dark text-white font-medium px-7 py-3.5 rounded-full transition-all text-sm hover:scale-105 shadow-lg hover:shadow-accent/25">
+            View Projects <i class="fas fa-arrow-right text-xs"></i>
+          </a>
+          <a href="#contact" class="inline-flex items-center gap-2 border-2 border-zinc-300 dark:border-zinc-700 px-7 py-3.5 rounded-full hover:border-accent hover:bg-accent/5 transition-all text-sm hover:scale-105">
+            Contact Me <i class="fas fa-envelope text-xs"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Content - Animated Profile -->
+      <div class="reveal d2 flex justify-center">
+        <div class="relative w-72 h-72 md:w-80 md:h-80 lg:w-96 lg:h-96">
+          <div class="absolute inset-0 rounded-full border-2 border-dashed border-accent/40 animate-spin-slow"></div>
+          <div class="profile-glow w-full h-full rounded-3xl border-2 border-accent/40 overflow-hidden animate-float">
+            <img 
+              src="https://f.top4top.io/p_3801ax6jr1.jpg"
+              alt="Afrizal Maulana"
+              class="w-full h-full object-cover"
+              loading="eager"
+            >
+          </div>
+          <div class="absolute -bottom-4 -left-4 bg-gradient-to-r from-accent to-accent-light text-white font-bold text-sm px-5 py-2.5 rounded-2xl shadow-xl animate-pulse">
+            <i class="fas fa-check-circle mr-1"></i> Available
+          </div>
+          <div class="absolute -top-4 -right-4 bg-white dark:bg-zinc-800 rounded-full w-12 h-12 flex items-center justify-center shadow-lg animate-bounce">
+            <i class="fas fa-code text-accent text-xl"></i>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  
+  <!-- Scroll Indicator -->
+  <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+    <a href="#about" class="block w-6 h-10 border-2 border-accent rounded-full relative">
+      <span class="absolute top-2 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-accent rounded-full animate-pulse"></span>
+    </a>
+  </div>
+</section>
+
+<!-- ═══ ABOUT SECTION ═══ -->
+<section id="about" class="py-28 bg-gradient-to-b from-transparent to-zinc-50/50 dark:to-zinc-900/20">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="grid md:grid-cols-2 gap-16 items-center">
+
+      <div class="order-2 md:order-1">
+        <div class="relative w-full max-w-sm mx-auto">
+          <div class="absolute inset-0 bg-accent/20 rounded-2xl blur-xl"></div>
+          <div class="relative bg-white dark:bg-zinc-800/50 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-zinc-200 dark:border-zinc-700 hover:scale-105 transition-all duration-500">
+            <div class="text-center">
+              <div class="text-7xl mb-4 animate-bounce">👨‍💻</div>
+              <h3 class="font-display font-bold text-xl mb-2 text-zinc-800 dark:text-white">My Mission</h3>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Building meaningful digital experiences through clean, efficient, and maintainable code that solves real problems.</p>
+            </div>
+          </div>
+          <!-- Decorative dots -->
+          <div class="absolute -bottom-3 -right-3 w-20 h-20 bg-accent/10 rounded-full -z-10"></div>
+        </div>
+      </div>
+
+      <div class="order-1 md:order-2">
+        <div class="inline-flex items-center gap-2 bg-accent/10 px-4 py-2 rounded-full mb-5">
+          <i class="fas fa-user-astronaut text-accent text-sm"></i>
+          <span class="text-xs font-medium text-accent">Get to know me</span>
+        </div>
+        <p class="reveal text-xs font-semibold text-accent tracking-wider uppercase mb-3">About me</p>
+        <h2 class="reveal d1 font-display font-bold text-4xl md:text-5xl text-zinc-800 dark:text-white leading-tight mb-6">Who am I?</h2>
+        <p class="reveal d2 text-zinc-500 dark:text-zinc-400 leading-relaxed mb-5">
+          I'm <strong class="text-accent">Afrizal Maulana</strong>, a <strong class="text-accent" x-text="currentAge"></strong>-year-old programming enthusiast <span class="text-xs">(born <strong>May 12, 2011</strong>)</span> with a strong passion for technology and software development. I believe that code has the power to solve real-world problems and transform ideas into reality.
+        </p>
+        <p class="reveal d3 text-zinc-500 dark:text-zinc-400 leading-relaxed mb-7">
+          My journey in programming started with curiosity about how websites and apps work, which has grown into a serious commitment to mastering the craft. I'm constantly learning new technologies, building projects, and improving my skills to create better digital solutions for everyone.
+        </p>
+        <div class="reveal d4 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl p-5">
+          <p class="text-sm font-semibold text-zinc-800 dark:text-white mb-3 flex items-center gap-2"><i class="fas fa-question-circle text-accent"></i> Why programming?</p>
+          <div class="grid grid-cols-2 gap-3 text-sm text-zinc-600 dark:text-zinc-400">
+            <div class="flex items-center gap-2"><i class="fas fa-check-circle text-accent text-xs"></i> Love solving complex problems</div>
+            <div class="flex items-center gap-2"><i class="fas fa-check-circle text-accent text-xs"></i> Creating from nothing is fulfilling</div>
+            <div class="flex items-center gap-2"><i class="fas fa-check-circle text-accent text-xs"></i> Endless opportunities to learn</div>
+            <div class="flex items-center gap-2"><i class="fas fa-check-circle text-accent text-xs"></i> Technology shapes the future</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SKILLS SECTION ═══ -->
+<section id="skills" class="py-28">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <div class="inline-flex items-center gap-2 bg-accent/10 px-4 py-2 rounded-full mb-4">
+        <i class="fas fa-code text-accent text-sm"></i>
+        <span class="text-xs font-medium text-accent">My expertise</span>
+      </div>
+      <p class="reveal text-xs font-semibold text-accent tracking-wider uppercase mb-3">What I know</p>
+      <h2 class="reveal d1 font-display font-bold text-4xl md:text-5xl text-zinc-800 dark:text-white">Skills & Technologies</h2>
+      <p class="reveal d2 text-zinc-500 dark:text-zinc-400 mt-4 max-w-2xl mx-auto">Technologies and tools I work with to bring ideas to life</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <!-- Skill 1 -->
+      <div class="reveal d1 card-hover bg-white dark:bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-8 border border-zinc-200 dark:border-zinc-800 text-center hover:border-accent transition-all group">
+        <div class="w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-accent/20 to-accent/5 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fab fa-python text-3xl text-accent"></i>
+        </div>
+        <h3 class="font-display font-bold text-xl mb-3 text-zinc-800 dark:text-white">Python</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Building interactive programs, games, and understanding core programming concepts with clean Python code.</p>
+      </div>
+
+      <div class="reveal d2 card-hover bg-white dark:bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-8 border border-zinc-200 dark:border-zinc-800 text-center hover:border-accent transition-all group">
+        <div class="w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-accent/20 to-accent/5 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fas fa-brain text-3xl text-accent"></i>
+        </div>
+        <h3 class="font-display font-bold text-xl mb-3 text-zinc-800 dark:text-white">Logic & Algorithm</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Flowcharts, pseudocode, systematic problem-solving approach for efficient solutions.</p>
+      </div>
+
+      <div class="reveal d3 card-hover bg-white dark:bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-8 border border-zinc-200 dark:border-zinc-800 text-center hover:border-accent transition-all group">
+        <div class="w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-accent/20 to-accent/5 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fab fa-html5 text-3xl text-accent"></i>
+        </div>
+        <h3 class="font-display font-bold text-xl mb-3 text-zinc-800 dark:text-white">HTML & CSS</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Creating responsive, accessible, and visually stunning website layouts.</p>
+      </div>
+
+      <div class="reveal d1 card-hover bg-white dark:bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-8 border border-zinc-200 dark:border-zinc-800 text-center hover:border-accent transition-all group">
+        <div class="w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-accent/20 to-accent/5 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fab fa-js text-3xl text-accent"></i>
+        </div>
+        <h3 class="font-display font-bold text-xl mb-3 text-zinc-800 dark:text-white">JavaScript</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Interactive web applications, DOM manipulation, and dynamic content creation.</p>
+      </div>
+
+      <div class="reveal d2 card-hover bg-white dark:bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-8 border border-zinc-200 dark:border-zinc-800 text-center hover:border-accent transition-all group">
+        <div class="w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-accent/20 to-accent/5 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fas fa-leaf text-3xl text-accent"></i>
+        </div>
+        <h3 class="font-display font-bold text-xl mb-3 text-zinc-800 dark:text-white">Alpine.js</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Reactive and declarative JavaScript framework for interactive UIs.</p>
+      </div>
+
+      <div class="reveal d3 card-hover bg-white dark:bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-8 border border-zinc-200 dark:border-zinc-800 text-center hover:border-accent transition-all group">
+        <div class="w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-accent/20 to-accent/5 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fab fa-css3-alt text-3xl text-accent"></i>
+        </div>
+        <h3 class="font-display font-bold text-xl mb-3 text-zinc-800 dark:text-white">Tailwind CSS</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Utility-first CSS framework for rapid, responsive, and modern design.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PROJECTS SECTION ═══ -->
+<section id="projects" class="py-28 bg-gradient-to-b from-zinc-50/50 to-transparent dark:from-zinc-900/20">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <div class="inline-flex items-center gap-2 bg-accent/10 px-4 py-2 rounded-full mb-4">
+        <i class="fas fa-rocket text-accent text-sm"></i>
+        <span class="text-xs font-medium text-accent">Featured work</span>
+      </div>
+      <p class="reveal text-xs font-semibold text-accent tracking-wider uppercase mb-3">My projects</p>
+      <h2 class="reveal d1 font-display font-bold text-4xl md:text-5xl text-zinc-800 dark:text-white">Featured Projects</h2>
+      <p class="reveal d2 text-zinc-500 dark:text-zinc-400 mt-4 max-w-2xl mx-auto">Interactive applications that showcase my skills and creativity</p>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-8">
+      
+      <!-- Project 1: Tic Tac Toe Game -->
+      <div class="reveal d2">
+        <div x-data="ticTacToeGame()" x-init="initGame()" class="bg-white dark:bg-zinc-900/70 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 hover:border-accent transition-all h-full">
+          
+          <div class="bg-gradient-to-r from-accent/10 to-accent-light/10 px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-display font-bold text-xl text-zinc-800 dark:text-white">🎮 Tic Tac Toe Game</h3>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Classic game with modern twist</p>
+              </div>
+              <span class="text-xs px-3 py-1.5 bg-accent/20 text-accent rounded-full font-medium">Interactive</span>
+            </div>
+          </div>
+
+          <div class="p-6">
+            <div class="text-center mb-5">
+              <div class="inline-block px-4 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-sm font-medium">
+                <span x-show="!gameOver && !winner" x-text="currentPlayer === 'X' ? '🎮 Player X\'s Turn' : '⚪ Player O\'s Turn'"></span>
+                <span x-show="winner && winner !== 'draw'" x-text="winner === 'X' ? '🎉 Player X Wins! 🎉' : '🎉 Player O Wins! 🎉'"></span>
+                <span x-show="winner === 'draw'">🤝 Game Draw! 🤝</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 max-w-[280px] mx-auto">
+              <template x-for="(cell, index) in board" :key="index">
+                <button @click="makeMove(index)"
+                  :disabled="cell !== '' || gameOver"
+                  class="ttt-cell disabled:opacity-100 disabled:cursor-not-allowed
+                    w-full aspect-square bg-zinc-100 dark:bg-zinc-800 
+                    hover:bg-accent/10 rounded-xl font-bold text-4xl md:text-5xl
+                    flex items-center justify-center transition-all duration-200
+                    border-2 border-zinc-200 dark:border-zinc-700
+                    hover:border-accent hover:scale-105"
+                  :class="{
+                    'win-cell': winCombination && winCombination.includes(index),
+                    'text-accent': cell === 'X',
+                    'text-orange-500': cell === 'O'
+                  }">
+                  <span x-text="cell"></span>
+                </button>
+              </template>
+            </div>
+
+            <div class="mt-7">
+              <div class="grid grid-cols-3 gap-3 text-center max-w-[280px] mx-auto">
+                <div class="p-2.5 rounded-xl bg-accent/10">
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400">Score X</p>
+                  <p class="text-2xl font-bold text-accent" x-text="scoreX">0</p>
+                </div>
+                <div class="p-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400">Draws</p>
+                  <p class="text-2xl font-bold text-zinc-600 dark:text-zinc-300" x-text="drawCount">0</p>
+                </div>
+                <div class="p-2.5 rounded-xl bg-orange-500/10">
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400">Score O</p>
+                  <p class="text-2xl font-bold text-orange-500" x-text="scoreO">0</p>
+                </div>
+              </div>
+              
+              <div class="flex justify-center gap-3 mt-5">
+                <button @click="resetGame()" class="px-5 py-2.5 bg-accent/10 hover:bg-accent/20 text-accent rounded-xl transition-all text-sm font-medium hover:scale-105">
+                  ↻ Reset Game
+                </button>
+                <button @click="resetScore()" class="px-5 py-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all text-sm font-medium hover:scale-105">
+                  Reset Score
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-zinc-50 dark:bg-zinc-800/30 px-6 py-3 border-t border-zinc-200 dark:border-zinc-800">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 text-center flex items-center justify-center gap-2">
+              <i class="fas fa-star text-accent text-xs"></i> Win animations & score tracking
+              <i class="fas fa-star text-accent text-xs"></i>
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Project 2: Advanced Calculator -->
+      <div class="reveal d3">
+        <div x-data="calculator()" class="bg-white dark:bg-zinc-900/70 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 hover:border-accent transition-all h-full">
+          
+          <div class="bg-gradient-to-r from-accent/10 to-accent-light/10 px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-display font-bold text-xl text-zinc-800 dark:text-white">🧮 Advanced Calculator</h3>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Perform basic arithmetic operations</p>
+              </div>
+              <span class="text-xs px-3 py-1.5 bg-accent/20 text-accent rounded-full font-medium">Utility</span>
+            </div>
+          </div>
+
+          <div class="p-6">
+            <div class="mb-5">
+              <div class="bg-zinc-100 dark:bg-zinc-800 rounded-xl p-4 text-right">
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 h-5" x-text="previousOperand || '&nbsp;'"></p>
+                <p class="text-3xl font-mono font-semibold text-zinc-800 dark:text-white break-all" x-text="currentOperand || '0'"></p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2.5">
+              <button @click="clear()" class="calc-btn bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 font-semibold py-3.5 rounded-xl transition-all text-sm">C</button>
+              <button @click="deleteLast()" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">⌫</button>
+              <button @click="appendOperator('/')" class="calc-btn bg-accent/10 hover:bg-accent/20 text-accent font-semibold py-3.5 rounded-xl transition-all text-sm">÷</button>
+              <button @click="appendOperator('*')" class="calc-btn bg-accent/10 hover:bg-accent/20 text-accent font-semibold py-3.5 rounded-xl transition-all text-sm">×</button>
+              
+              <button @click="appendNumber('7')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">7</button>
+              <button @click="appendNumber('8')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">8</button>
+              <button @click="appendNumber('9')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">9</button>
+              <button @click="appendOperator('-')" class="calc-btn bg-accent/10 hover:bg-accent/20 text-accent font-semibold py-3.5 rounded-xl transition-all text-sm">-</button>
+              
+              <button @click="appendNumber('4')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">4</button>
+              <button @click="appendNumber('5')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">5</button>
+              <button @click="appendNumber('6')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">6</button>
+              <button @click="appendOperator('+')" class="calc-btn bg-accent/10 hover:bg-accent/20 text-accent font-semibold py-3.5 rounded-xl transition-all text-sm">+</button>
+              
+              <button @click="appendNumber('1')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">1</button>
+              <button @click="appendNumber('2')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">2</button>
+              <button @click="appendNumber('3')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">3</button>
+              <button @click="calculate()" class="calc-btn bg-accent hover:bg-accent-light text-white font-semibold py-3.5 rounded-xl transition-all row-span-2 text-lg">=</button>
+              
+              <button @click="appendNumber('0')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all col-span-2 text-sm">0</button>
+              <button @click="appendNumber('.')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">.</button>
+            </div>
+          </div>
+
+          <div class="bg-zinc-50 dark:bg-zinc-800/30 px-6 py-3 border-t border-zinc-200 dark:border-zinc-800">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 text-center flex items-center justify-center gap-2">
+              <i class="fas fa-plus-circle text-accent text-xs"></i> Supports: + , - , × , ÷
+              <i class="fas fa-equals text-accent text-xs"></i>
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Project Description -->
+    <div class="reveal d4 mt-12 text-center max-w-2xl mx-auto">
+      <div class="bg-accent/5 rounded-2xl p-5 border border-accent/10">
+        <p class="text-sm text-zinc-600 dark:text-zinc-400 flex flex-wrap justify-center gap-4">
+          <span class="inline-flex items-center gap-2"><i class="fas fa-gamepad text-accent"></i> Interactive Tic Tac Toe</span>
+          <span class="inline-flex items-center gap-2"><i class="fas fa-calculator text-accent"></i> Full-featured Calculator</span>
+          <span class="inline-flex items-center gap-2"><i class="fas fa-mobile-alt text-accent"></i> Fully Responsive</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ACHIEVEMENTS SECTION (NEW) ═══ -->
+<section id="achievements" class="py-28">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <div class="inline-flex items-center gap-2 bg-accent/10 px-4 py-2 rounded-full mb-4">
+        <i class="fas fa-trophy text-accent text-sm"></i>
+        <span class="text-xs font-medium text-accent">Recognition</span>
+      </div>
+      <p class="reveal text-xs font-semibold text-accent tracking-wider uppercase mb-3">Achievements</p>
+      <h2 class="reveal d1 font-display font-bold text-4xl md:text-5xl text-zinc-800 dark:text-white">Milestones & Awards</h2>
+      <p class="reveal d2 text-zinc-500 dark:text-zinc-400 mt-4 max-w-2xl mx-auto">Recognition and accomplishments along my coding journey</p>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-6">
+      <div class="reveal d1 text-center p-6 bg-gradient-to-br from-accent/5 to-transparent rounded-2xl border border-accent/10 hover:border-accent/30 transition-all">
+        <div class="w-16 h-16 mx-auto mb-4 bg-accent/10 rounded-full flex items-center justify-center">
+          <i class="fas fa-certificate text-2xl text-accent"></i>
+        </div>
+        <div class="text-3xl font-bold text-accent mb-2">5+</div>
+        <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Certifications</p>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Programming & Web Dev</p>
+      </div>
+      
+      <div class="reveal d2 text-center p-6 bg-gradient-to-br from-accent/5 to-transparent rounded-2xl border border-accent/10 hover:border-accent/30 transition-all">
+        <div class="w-16 h-16 mx-auto mb-4 bg-accent/10 rounded-full flex items-center justify-center">
+          <i class="fas fa-code-branch text-2xl text-accent"></i>
+        </div>
+        <div class="text-3xl font-bold text-accent mb-2">20+</div>
+        <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Projects Completed</p>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Web & Applications</p>
+      </div>
+      
+      <div class="reveal d3 text-center p-6 bg-gradient-to-br from-accent/5 to-transparent rounded-2xl border border-accent/10 hover:border-accent/30 transition-all">
+        <div class="w-16 h-16 mx-auto mb-4 bg-accent/10 rounded-full flex items-center justify-center">
+          <i class="fas fa-users text-2xl text-accent"></i>
+        </div>
+        <div class="text-3xl font-bold text-accent mb-2">10+</div>
+        <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Happy Clients</p>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Worldwide</p>
+      </div>
+      
+      <div class="reveal d4 text-center p-6 bg-gradient-to-br from-accent/5 to-transparent rounded-2xl border border-accent/10 hover:border-accent/30 transition-all">
+        <div class="w-16 h-16 mx-auto mb-4 bg-accent/10 rounded-full flex items-center justify-center">
+          <i class="fas fa-clock text-2xl text-accent"></i>
+        </div>
+        <div class="text-3xl font-bold text-accent mb-2">2+</div>
+        <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Years Experience</p>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Continuous Learning</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT SECTION ═══ -->
+<section id="contact" class="py-28 bg-gradient-to-b from-transparent to-zinc-50/50 dark:to-zinc-900/20">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="bg-gradient-to-br from-zinc-900 to-zinc-800 dark:from-zinc-800 dark:to-zinc-900 rounded-3xl p-10 md:p-14 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-80 h-80 bg-accent/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute bottom-0 left-0 w-60 h-60 bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 grid md:grid-cols-2 gap-10 items-start">
+
+        <div>
+          <div class="inline-flex items-center gap-2 bg-accent/20 px-4 py-2 rounded-full mb-5">
+            <i class="fas fa-comment-dots text-accent text-sm"></i>
+            <span class="text-xs font-medium text-accent">Get in touch</span>
+          </div>
+          <p class="reveal text-xs font-semibold text-accent tracking-wider uppercase mb-3">Contact</p>
+          <h2 class="reveal d1 font-display font-bold text-3xl md:text-4xl text-white leading-tight mb-5">Let's connect and create something amazing</h2>
+          <p class="reveal d2 text-zinc-300 leading-relaxed mb-8 text-sm">I'm open to discussions, collaborations, or just a friendly chat about technology and programming. Let's bring your ideas to life!</p>
+
+          <div class="reveal d3 flex flex-col gap-4">
+            <a href="https://wa.me/6289665432305" target="_blank" class="group flex items-center gap-4 text-zinc-300 hover:text-white transition-all text-sm p-3 rounded-xl hover:bg-white/5">
+              <span class="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-xl group-hover:bg-accent/20 transition-all group-hover:scale-110">📱</span>
+              <div><div class="font-medium">WhatsApp</div><div class="text-xs text-zinc-400">+62 896-6543-2305</div></div>
+            </a>
+            <a href="mailto:rizalmaulgari@gmail.com" class="group flex items-center gap-4 text-zinc-300 hover:text-white transition-all text-sm p-3 rounded-xl hover:bg-white/5">
+              <span class="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-xl group-hover:bg-accent/20 transition-all group-hover:scale-110">📧</span>
+              <div><div class="font-medium">Email</div><div class="text-xs text-zinc-400">rizalmaulgari@gmail.com</div></div>
+            </a>
+            <a href="https://instagram.com/afrizal_m.h" target="_blank" class="group flex items-center gap-4 text-zinc-300 hover:text-white transition-all text-sm p-3 rounded-xl hover:bg-white/5">
+              <span class="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-xl group-hover:bg-accent/20 transition-all group-hover:scale-110">📷</span>
+              <div><div class="font-medium">Instagram</div><div class="text-xs text-zinc-400">@afrizal_m.h</div></div>
+            </a>
+            <a href="https://github.com/rizxvelz" target="_blank" class="group flex items-center gap-4 text-zinc-300 hover:text-white transition-all text-sm p-3 rounded-xl hover:bg-white/5">
+              <span class="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-xl group-hover:bg-accent/20 transition-all group-hover:scale-110">💻</span>
+              <div><div class="font-medium">GitHub</div><div class="text-xs text-zinc-400">github.com/rizxvelz</div></div>
+            </a>
+          </div>
+        </div>
+
+        <div class="reveal d2">
+          <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+            <p class="text-center text-zinc-300 text-sm mb-4 flex items-center justify-center gap-2">
+              <i class="fas fa-bolt text-accent"></i> Fast Response
+            </p>
+            <a href="https://wa.me/6289665432305" class="shimmer w-full inline-flex justify-center items-center gap-3 bg-accent hover:bg-accent-dark text-white font-semibold text-sm py-3.5 rounded-xl transition-all hover:scale-105">
+              <i class="fab fa-whatsapp text-lg"></i> Message me on WhatsApp
+            </a>
+            <p class="text-center text-xs text-zinc-400 mt-4 flex items-center justify-center gap-2">
+              <i class="fas fa-clock"></i> Usually responds within 1 hour
+            </p>
+          </div>
+          
+          <!-- Testimonial/Quote -->
+          <div class="mt-6 p-5 bg-accent/5 rounded-xl border border-accent/10 text-center">
+            <i class="fas fa-quote-left text-accent text-xl mb-3 opacity-50"></i>
+            <p class="text-sm text-zinc-400 italic">"Code is like humor. When you have to explain it, it's bad." – Cory House</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="border-t border-zinc-200 dark:border-zinc-800 py-8">
+  <div class="max-w-6xl mx-auto px-6 text-center">
+    <p class="text-sm text-zinc-500 dark:text-zinc-400">© <span id="copyrightYear"></span> Afrizal Maulana. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+// Tic Tac Toe Game Logic
+function ticTacToeGame() {
+  return {
+    board: ['', '', '', '', '', '', '', '', ''],
+    currentPlayer: 'X',
+    gameOver: false,
+    winner: null,
+    winCombination: null,
+    scoreX: 0,
+    scoreO: 0,
+    drawCount: 0,
+
+    initGame() {
+      this.resetGame();
+    },
+
+    makeMove(index) {
+      if (this.board[index] !== '' || this.gameOver) return;
+      
+      this.board[index] = this.currentPlayer;
+      
+      if (this.checkWin()) {
+        this.gameOver = true;
+        this.winner = this.currentPlayer;
+        if (this.currentPlayer === 'X') this.scoreX++;
+        else this.scoreO++;
+        return;
+      }
+      
+      if (this.checkDraw()) {
+        this.gameOver = true;
+        this.winner = 'draw';
+        this.drawCount++;
+        return;
+      }
+      
+      this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+    },
+
+    checkWin() {
+      const winPatterns = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+      for (let pattern of winPatterns) {
+        const [a,b,c] = pattern;
+        if (this.board[a] && this.board[a] === this.board[b] && this.board[a] === this.board[c]) {
+          this.winCombination = pattern;
+          return true;
+        }
+      }
+      this.winCombination = null;
+      return false;
+    },
+
+    checkDraw() { return this.board.every(cell => cell !== ''); },
+    resetGame() {
+      this.board = ['', '', '', '', '', '', '', '', ''];
+      this.currentPlayer = 'X';
+      this.gameOver = false;
+      this.winner = null;
+      this.winCombination = null;
+    },
+    resetScore() { this.scoreX = 0; this.scoreO = 0; this.drawCount = 0; this.resetGame(); }
+  }
+}
+
+// Calculator Logic
+function calculator() {
+  return {
+    currentOperand: '', previousOperand: '', operation: null,
+    clear() { this.currentOperand = ''; this.previousOperand = ''; this.operation = null; },
+    deleteLast() { this.currentOperand = this.currentOperand.toString().slice(0, -1); },
+    appendNumber(number) {
+      if (number === '.' && this.currentOperand.includes('.')) return;
+      this.currentOperand = this.currentOperand.toString() + number.toString();
+    },
+    appendOperator(operator) {
+      if (this.currentOperand === '') return;
+      if (this.previousOperand !== '') this.calculate();
+      this.operation = operator;
+      this.previousOperand = this.currentOperand;
+      this.currentOperand = '';
+    },
+    calculate() {
+      let computation;
+      const prev = parseFloat(this.previousOperand);
+      const current = parseFloat(this.currentOperand);
+      if (isNaN(prev) || isNaN(current)) return;
+      switch (this.operation) {
+        case '+': computation = prev + current; break;
+        case '-': computation = prev - current; break;
+        case '*': computation = prev * current; break;
+        case '/': computation = prev / current; break;
+        default: return;
+      }
+      this.currentOperand = computation.toString();
+      this.operation = null;
+      this.previousOperand = '';
+    }
+  }
+}
+
+// Main App
+function app() {
+  return {
+    dark: false,
+    mobileMenu: false,
+    scrolled: false,
+    activeSection: 'hero',
+    currentAge: 0,
+
+    init() {
+      // Dark mode
+      this.dark = localStorage.getItem('theme') === 'dark' ||
+        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      this.$watch('dark', v => localStorage.setItem('theme', v ? 'dark' : 'light'));
+
+      // Age calculation
+      this.updateAge();
+      setInterval(() => this.updateAge(), 86400000);
+
+      // Scroll events
+      window.addEventListener('scroll', () => {
+        this.scrolled = window.scrollY > 50;
+        this.updateActiveSection();
+      });
+
+      // Reveal animation
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+      document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+    },
+
+    toggleDarkMode() { this.dark = !this.dark; },
+
+    updateAge() {
+      const birth = new Date(2011, 4, 12);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      if (today.getMonth() < birth.getMonth() || 
+          (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age--;
+      this.currentAge = age;
+    },
+
+    updateActiveSection() {
+      const sections = ['contact', 'achievements', 'projects', 'skills', 'about', 'hero'];
+      for (const sec of sections) {
+        const el = document.getElementById(sec);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 150 && rect.bottom >= 150) {
+            this.activeSection = sec;
+            return;
+          }
+        }
+      }
+      this.activeSection = 'hero';
+    }
+  }
+}
+</script>
+
+</body>
+</html>
