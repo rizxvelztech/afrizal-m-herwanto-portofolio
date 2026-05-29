@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en" x-data="app()" :class="{'dark':dark}" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="description" content="Afrizal Maulana - Projects Portfolio | 8 Interactive Web Applications">
+<meta name="keywords" content="projects, portfolio, developer, programmer, Afrizal Maulana, Tic Tac Toe, Calculator, Todo List, Quote Generator, Digital Clock, Color Palette, BMI Calculator, Password Generator">
+<meta name="author" content="Afrizal Maulana">
+<meta name="theme-color" content="#6366f1">
+<title>Afrizal Maulana — Projects</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: { display: ['Poppins', 'sans-serif'], body: ['Inter', 'sans-serif'] },
+      colors: { accent: '#6366f1', 'accent-light': '#818cf8', 'accent-dark': '#4f46e5' },
+      animation: { 'float': 'float 3s ease-in-out infinite', 'pulse-slow': 'pulse 3s ease-in-out infinite' },
+      keyframes: { float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-15px)' } } }
+    }
+  }
+}
+</script>
+
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',sans-serif;transition:background-color .3s,color .3s}
+  h1,h2,h3,h4,h5,h6{font-family:'Poppins',sans-serif}
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#6366f1;border-radius:99px}
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity .7s cubic-bezier(0.4,0,0.2,1),transform .7s cubic-bezier(0.4,0,0.2,1)}
+  .reveal.in{opacity:1;transform:translateY(0)}
+  .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+  .nl{position:relative}
+  .nl::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:2px;background:#6366f1;transition:width .3s cubic-bezier(0.4,0,0.2,1)}
+  .nl:hover::after,.nl.active::after{width:100%}
+  .shimmer{position:relative;overflow:hidden}
+  .shimmer::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);transform:skewX(-20deg);transition:left .5s ease}
+  .shimmer:hover::after{left:160%}
+  .card-hover{transition:all .3s cubic-bezier(0.4,0,0.2,1)}
+  .card-hover:hover{transform:translateY(-6px);box-shadow:0 20px 30px -12px rgba(0,0,0,0.15)}
+  .ttt-cell{aspect-ratio:1/1;transition:all .2s ease}
+  .ttt-cell:hover:not(:disabled){transform:scale(1.05);background-color:rgba(99,102,241,0.1)}
+  .win-cell{background:linear-gradient(135deg,rgba(34,197,94,0.25),rgba(34,197,94,0.08));position:relative}
+  .win-cell::after{content:'✨';position:absolute;font-size:1.8rem;animation:sparkle .5s ease infinite}
+  @keyframes sparkle{0%,100%{opacity:0.6;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}
+  .calc-btn{transition:all .1s ease}.calc-btn:active{transform:scale(0.94)}
+  [x-cloak]{display:none!important}
+  .todo-item{transition:all .2s ease}.todo-item:hover{transform:translateX(4px)}
+  .quote-card{background:linear-gradient(135deg,rgba(99,102,241,0.05),rgba(129,140,248,0.02))}
+  .color-card{cursor:pointer;transition:all .2s ease}.color-card:hover{transform:scale(1.05);box-shadow:0 10px 25px -5px rgba(0,0,0,0.2)}
+</style>
+</head>
+
+<body class="bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 antialiased">
+
+<!-- ═══ NAVIGATION ═══ -->
+<header class="fixed inset-x-0 top-0 z-50 transition-all duration-300" :class="scrolled ? 'bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md shadow-lg' : 'bg-transparent'">
+  <nav class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="index.html" class="font-display font-bold text-2xl tracking-tight group">
+      <span class="text-zinc-800 dark:text-white">Afrizal</span>
+      <span class="text-accent group-hover:text-accent-light transition">Maulana</span>
+    </a>
+    <ul class="hidden md:flex items-center gap-8 text-sm font-medium">
+      <li><a href="index.html#about" class="nl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition">About</a></li>
+      <li><a href="index.html#skills" class="nl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition">Skills</a></li>
+      <li><a href="project.html" class="nl text-accent font-semibold transition">Projects</a></li>
+      <li><a href="index.html#achievements" class="nl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition">Achievements</a></li>
+      <li><a href="index.html#contact" class="nl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition">Contact</a></li>
+    </ul>
+    <div class="flex items-center gap-3">
+      <button @click="toggleDarkMode" class="w-10 h-10 flex items-center justify-center rounded-full border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all hover:scale-105">
+        <svg x-show="!dark" class="w-4.5 h-4.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        <svg x-show="dark" class="w-4.5 h-4.5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+      </button>
+      <a href="index.html#contact" class="hidden md:inline-flex shimmer items-center gap-2 bg-accent hover:bg-accent-dark text-white font-medium px-5 py-2.5 rounded-full transition-all text-sm hover:scale-105">Hire Me <i class="fas fa-arrow-right text-xs"></i></a>
+      <button @click="mobileMenu=!mobileMenu" class="md:hidden w-10 h-10 flex items-center justify-center rounded-full border border-zinc-200 dark:border-zinc-800"><svg x-show="!mobileMenu" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg><svg x-show="mobileMenu" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+  </nav>
+  <div x-show="mobileMenu" x-cloak x-transition class="md:hidden bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-800 shadow-xl">
+    <ul class="flex flex-col px-6 py-5 gap-4">
+      <li><a href="index.html#about" @click="mobileMenu=false" class="block text-zinc-700 dark:text-zinc-300 hover:text-accent transition py-2">About</a></li>
+      <li><a href="index.html#skills" @click="mobileMenu=false" class="block text-zinc-700 dark:text-zinc-300 hover:text-accent transition py-2">Skills</a></li>
+      <li><a href="project.html" @click="mobileMenu=false" class="block text-accent font-semibold transition py-2">Projects</a></li>
+      <li><a href="index.html#achievements" @click="mobileMenu=false" class="block text-zinc-700 dark:text-zinc-300 hover:text-accent transition py-2">Achievements</a></li>
+      <li><a href="index.html#contact" @click="mobileMenu=false" class="block text-zinc-700 dark:text-zinc-300 hover:text-accent transition py-2">Contact</a></li>
+      <li class="pt-2"><a href="index.html#contact" @click="mobileMenu=false" class="inline-flex shimmer bg-accent text-white px-6 py-2.5 rounded-full text-center justify-center w-full">Hire Me</a></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+<!-- ═══ PROJECTS HERO ═══ -->
+<section class="relative pt-32 pb-16 overflow-hidden">
+  <div class="absolute top-1/4 right-0 w-96 h-96 bg-accent/15 rounded-full blur-3xl pointer-events-none animate-pulse-slow"></div>
+  <div class="relative z-10 max-w-6xl mx-auto px-6 text-center">
+    <div class="inline-flex items-center gap-2 bg-accent/10 px-4 py-2 rounded-full mb-6"><i class="fas fa-rocket text-accent text-sm"></i><span class="text-xs font-medium text-accent">8 Interactive Projects</span></div>
+    <h1 class="font-display font-bold text-5xl md:text-6xl lg:text-7xl mb-5 bg-gradient-to-r from-zinc-800 to-accent dark:from-white dark:to-accent bg-clip-text text-transparent">My Projects</h1>
+    <p class="text-lg md:text-xl text-zinc-500 dark:text-zinc-400 max-w-2xl mx-auto">A collection of interactive web applications that showcase my skills in HTML, CSS, JavaScript, and Alpine.js</p>
+  </div>
+</section>
+
+<!-- ═══ PROJECTS GRID ═══ -->
+<section class="py-16">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="grid lg:grid-cols-2 gap-8">
+      
+      <!-- Project 1: Tic Tac Toe Game -->
+      <div class="reveal d1">
+        <div x-data="ticTacToeGame()" x-init="initGame()" class="bg-white dark:bg-zinc-900/70 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 hover:border-accent transition-all h-full">
+          <div class="bg-gradient-to-r from-accent/10 to-accent-light/10 px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center justify-between">
+              <div><h3 class="font-display font-bold text-xl text-zinc-800 dark:text-white">Tic Tac Toe Game</h3><p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Classic game with modern twist</p></div>
+              <span class="text-xs px-3 py-1.5 bg-accent/20 text-accent rounded-full font-medium">Interactive</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="text-center mb-5"><div class="inline-block px-4 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-sm font-medium"><span x-show="!gameOver && !winner" x-text="currentPlayer === 'X' ? '🎮 Player X\'s Turn' : '⚪ Player O\'s Turn'"></span><span x-show="winner && winner !== 'draw'" x-text="winner === 'X' ? '🎉 Player X Wins! 🎉' : '🎉 Player O Wins! 🎉'"></span><span x-show="winner === 'draw'">🤝 Game Draw! 🤝</span></div></div>
+            <div class="grid grid-cols-3 gap-3 max-w-[280px] mx-auto">
+              <template x-for="(cell, index) in board" :key="index">
+                <button @click="makeMove(index)" :disabled="cell !== '' || gameOver" class="ttt-cell disabled:opacity-100 disabled:cursor-not-allowed w-full aspect-square bg-zinc-100 dark:bg-zinc-800 hover:bg-accent/10 rounded-xl font-bold text-4xl md:text-5xl flex items-center justify-center transition-all duration-200 border-2 border-zinc-200 dark:border-zinc-700 hover:border-accent hover:scale-105" :class="{'win-cell': winCombination && winCombination.includes(index), 'text-accent': cell === 'X', 'text-orange-500': cell === 'O'}"><span x-text="cell"></span></button>
+              </template>
+            </div>
+            <div class="mt-7">
+              <div class="grid grid-cols-3 gap-3 text-center max-w-[280px] mx-auto">
+                <div class="p-2.5 rounded-xl bg-accent/10"><p class="text-xs text-zinc-500 dark:text-zinc-400">Score X</p><p class="text-2xl font-bold text-accent" x-text="scoreX">0</p></div>
+                <div class="p-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800"><p class="text-xs text-zinc-500 dark:text-zinc-400">Draws</p><p class="text-2xl font-bold text-zinc-600 dark:text-zinc-300" x-text="drawCount">0</p></div>
+                <div class="p-2.5 rounded-xl bg-orange-500/10"><p class="text-xs text-zinc-500 dark:text-zinc-400">Score O</p><p class="text-2xl font-bold text-orange-500" x-text="scoreO">0</p></div>
+              </div>
+              <div class="flex justify-center gap-3 mt-5"><button @click="resetGame()" class="px-5 py-2.5 bg-accent/10 hover:bg-accent/20 text-accent rounded-xl transition-all text-sm font-medium hover:scale-105">↻ Reset Game</button><button @click="resetScore()" class="px-5 py-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 rounded-xl transition-all text-sm font-medium hover:scale-105">Reset Score</button></div>
+            </div>
+          </div>
+          <div class="bg-zinc-50 dark:bg-zinc-800/30 px-6 py-3 border-t border-zinc-200 dark:border-zinc-800"><p class="text-xs text-zinc-500 dark:text-zinc-400 text-center flex items-center justify-center gap-2"><i class="fas fa-star text-accent text-xs"></i> Win animations & score tracking <i class="fas fa-star text-accent text-xs"></i></p></div>
+        </div>
+      </div>
+
+      <!-- Project 2: Advanced Calculator -->
+      <div class="reveal d2">
+        <div x-data="calculator()" class="bg-white dark:bg-zinc-900/70 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 hover:border-accent transition-all h-full">
+          <div class="bg-gradient-to-r from-accent/10 to-accent-light/10 px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center justify-between"><div><h3 class="font-display font-bold text-xl text-zinc-800 dark:text-white">Advanced Calculator</h3><p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Perform basic arithmetic operations</p></div><span class="text-xs px-3 py-1.5 bg-accent/20 text-accent rounded-full font-medium">Utility</span></div>
+          </div>
+          <div class="p-6">
+            <div class="mb-5"><div class="bg-zinc-100 dark:bg-zinc-800 rounded-xl p-4 text-right"><p class="text-xs text-zinc-500 dark:text-zinc-400 h-5" x-text="previousOperand || '&nbsp;'"></p><p class="text-3xl font-mono font-semibold text-zinc-800 dark:text-white break-all" x-text="currentOperand || '0'"></p></div></div>
+            <div class="grid grid-cols-4 gap-2.5">
+              <button @click="clear()" class="calc-btn bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 font-semibold py-3.5 rounded-xl transition-all text-sm">C</button>
+              <button @click="deleteLast()" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">⌫</button>
+              <button @click="appendOperator('/')" class="calc-btn bg-accent/10 hover:bg-accent/20 text-accent font-semibold py-3.5 rounded-xl transition-all text-sm">÷</button>
+              <button @click="appendOperator('*')" class="calc-btn bg-accent/10 hover:bg-accent/20 text-accent font-semibold py-3.5 rounded-xl transition-all text-sm">×</button>
+              <button @click="appendNumber('7')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">7</button>
+              <button @click="appendNumber('8')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">8</button>
+              <button @click="appendNumber('9')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">9</button>
+              <button @click="appendOperator('-')" class="calc-btn bg-accent/10 hover:bg-accent/20 text-accent font-semibold py-3.5 rounded-xl transition-all text-sm">-</button>
+              <button @click="appendNumber('4')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">4</button>
+              <button @click="appendNumber('5')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">5</button>
+              <button @click="appendNumber('6')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">6</button>
+              <button @click="appendOperator('+')" class="calc-btn bg-accent/10 hover:bg-accent/20 text-accent font-semibold py-3.5 rounded-xl transition-all text-sm">+</button>
+              <button @click="appendNumber('1')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">1</button>
+              <button @click="appendNumber('2')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">2</button>
+              <button @click="appendNumber('3')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">3</button>
+              <button @click="calculate()" class="calc-btn bg-accent hover:bg-accent-light text-white font-semibold py-3.5 rounded-xl transition-all row-span-2 text-lg">=</button>
+              <button @click="appendNumber('0')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all col-span-2 text-sm">0</button>
+              <button @click="appendNumber('.')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3.5 rounded-xl transition-all text-sm">.</button>
+            </div>
+          </div>
+          <div class="bg-zinc-50 dark:bg-zinc-800/30 px-6 py-3 border-t border-zinc-200 dark:border-zinc-800"><p class="text-xs text-zinc-500 dark:text-zinc-400 text-center flex items-center justify-center gap-2"><i class="fas fa-plus-circle text-accent text-xs"></i> Supports: + , - , × , ÷ <i class="fas fa-equals text-accent text-xs"></i></p></div>
+        </div>
+      </div>
+
+      <!-- Project 3: To-Do List App -->
+      <div class="reveal d1">
+        <div x-data="todoApp()" class="bg-white dark:bg-zinc-900/70 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 hover:border-accent transition-all h-full">
+          <div class="bg-gradient-to-r from-accent/10 to-accent-light/10 px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center justify-between"><div><h3 class="font-display font-bold text-xl text-zinc-800 dark:text-white">To-Do List App</h3><p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Manage your daily tasks</p></div><span class="text-xs px-3 py-1.5 bg-accent/20 text-accent rounded-full font-medium">Productivity</span></div>
+          </div>
+          <div class="p-6">
+            <div class="flex gap-2 mb-5"><input type="text" x-model="newTodo" @keyup.enter="addTodo" placeholder="Add a new task..." class="flex-1 px-4 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:border-accent focus:outline-none transition"><button @click="addTodo" class="px-5 py-2.5 bg-accent text-white rounded-xl hover:bg-accent-dark transition">Add</button></div>
+            <div class="space-y-2 max-h-64 overflow-y-auto">
+              <template x-for="(todo, index) in todos" :key="index">
+                <div class="todo-item flex items-center gap-3 p-3 bg-zinc-100 dark:bg-zinc-800 rounded-xl"><input type="checkbox" x-model="todo.completed" class="w-5 h-5 rounded accent-accent"><span :class="{'line-through text-zinc-400': todo.completed}" class="flex-1 text-sm" x-text="todo.text"></span><button @click="deleteTodo(index)" class="text-red-500 hover:text-red-600 transition"><i class="fas fa-trash"></i></button></div>
+              </template>
+              <div x-show="todos.length === 0" class="text-center py-8 text-zinc-400 text-sm"><i class="fas fa-clipboard-list text-3xl mb-2 block"></i>No tasks yet. Add one above!</div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-700 flex justify-between text-xs text-zinc-500"><span x-text="todos.filter(t=>!t.completed).length + ' tasks remaining'"></span><button @click="clearCompleted" class="text-red-400 hover:text-red-500 transition" x-show="todos.some(t=>t.completed)">Clear completed</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 4: Random Quote Generator -->
+      <div class="reveal d2">
+        <div x-data="quoteGenerator()" class="bg-white dark:bg-zinc-900/70 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 hover:border-accent transition-all h-full">
+          <div class="bg-gradient-to-r from-accent/10 to-accent-light/10 px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center justify-between"><div><h3 class="font-display font-bold text-xl text-zinc-800 dark:text-white">Quote Generator</h3><p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Daily inspiration at your fingertips</p></div><span class="text-xs px-3 py-1.5 bg-accent/20 text-accent rounded-full font-medium">Inspiration</span></div>
+          </div>
+          <div class="p-6">
+            <div class="quote-card rounded-xl p-6 text-center min-h-[200px] flex flex-col justify-center border border-accent/10">
+              <i class="fas fa-quote-left text-accent/30 text-3xl mb-3"></i>
+              <p class="text-lg md:text-xl font-medium text-zinc-700 dark:text-zinc-200 leading-relaxed mb-4" x-text="currentQuote.text">"Loading..."</p>
+              <p class="text-sm text-accent" x-text="'— ' + currentQuote.author">— Loading...</p>
+            </div>
+            <div class="mt-5 flex justify-center gap-3"><button @click="newQuote" class="px-5 py-2.5 bg-accent text-white rounded-xl hover:bg-accent-dark transition"><i class="fas fa-sync-alt mr-2"></i>New Quote</button><button @click="copyQuote" class="px-5 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-xl hover:border-accent transition"><i class="fas fa-copy mr-2"></i>Copy</button></div>
+            <p class="text-center text-xs text-zinc-400 mt-3"><i class="fas fa-lightbulb text-accent text-xs"></i> Click for a fresh dose of inspiration!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 5: Digital Clock -->
+      <div class="reveal d3">
+        <div x-data="digitalClock()" x-init="startClock()" class="bg-white dark:bg-zinc-900/70 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 hover:border-accent transition-all h-full">
+          <div class="bg-gradient-to-r from-accent/10 to-accent-light/10 px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center justify-between"><div><h3 class="font-display font-bold text-xl text-zinc-800 dark:text-white">Digital Clock</h3><p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Real-time with date & time</p></div><span class="text-xs px-3 py-1.5 bg-accent/20 text-accent rounded-full font-medium">Real-time</span></div>
+          </div>
+          <div class="p-6 text-center">
+            <div class="bg-gradient-to-r from-accent/5 to-accent-light/5 rounded-2xl p-6">
+              <div class="text-5xl md:text-6xl font-mono font-bold text-accent mb-2" x-text="time">--:--:--</div>
+              <div class="text-xl text-zinc-600 dark:text-zinc-300" x-text="date">Loading...</div>
+              <div class="mt-3 text-sm text-zinc-400" x-text="dayName">Loading...</div>
+            </div>
+            <div class="mt-4 flex justify-center gap-4"><div class="text-center"><div class="text-2xl font-bold text-accent" x-text="hour12">--</div><div class="text-xs text-zinc-400">Hour</div></div><div class="text-center"><div class="text-2xl font-bold text-accent" x-text="minute">--</div><div class="text-xs text-zinc-400">Minute</div></div><div class="text-center"><div class="text-2xl font-bold text-accent" x-text="second">--</div><div class="text-xs text-zinc-400">Second</div></div><div class="text-center"><div class="text-2xl font-bold text-green-500" x-text="ampm">--</div><div class="text-xs text-zinc-400">Period</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 6: Color Palette Generator -->
+      <div class="reveal d1">
+        <div x-data="colorPalette()" x-init="generatePalette()" class="bg-white dark:bg-zinc-900/70 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 hover:border-accent transition-all h-full">
+          <div class="bg-gradient-to-r from-accent/10 to-accent-light/10 px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center justify-between"><div><h3 class="font-display font-bold text-xl text-zinc-800 dark:text-white">Color Palette</h3><p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Generate beautiful color schemes</p></div><span class="text-xs px-3 py-1.5 bg-accent/20 text-accent rounded-full font-medium">Design</span></div>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-5 gap-2 mb-5"><template x-for="(color, index) in colors" :key="index"><div class="color-card rounded-xl h-20 cursor-pointer transition-all" :style="'background-color: ' + color" @click="copyColor(color)" :title="'Click to copy ' + color"></div></template></div>
+            <div class="grid grid-cols-5 gap-2 text-xs text-center"><template x-for="color in colors"><div class="font-mono truncate px-1" x-text="color"></div></template></div>
+            <div class="mt-5 flex justify-center gap-3"><button @click="generatePalette" class="px-5 py-2.5 bg-accent text-white rounded-xl hover:bg-accent-dark transition"><i class="fas fa-dice-d6 mr-2"></i>Generate New</button><button @click="copyPalette" class="px-5 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-xl hover:border-accent transition"><i class="fas fa-copy mr-2"></i>Copy All</button></div>
+            <p class="text-center text-xs text-zinc-400 mt-3"><i class="fas fa-mouse-pointer text-accent text-xs"></i> Click any color to copy hex code!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 7: BMI Calculator -->
+      <div class="reveal d2">
+        <div x-data="bmiCalculator()" class="bg-white dark:bg-zinc-900/70 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 hover:border-accent transition-all h-full">
+          <div class="bg-gradient-to-r from-accent/10 to-accent-light/10 px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center justify-between"><div><h3 class="font-display font-bold text-xl text-zinc-800 dark:text-white">BMI Calculator</h3><p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Check your body mass index</p></div><span class="text-xs px-3 py-1.5 bg-accent/20 text-accent rounded-full font-medium">Health</span></div>
+          </div>
+          <div class="p-6">
+            <div class="space-y-4"><div><label class="block text-sm font-medium mb-1">Height (cm)</label><input type="number" x-model="height" @input="calculateBMI" class="w-full px-4 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:border-accent focus:outline-none"></div><div><label class="block text-sm font-medium mb-1">Weight (kg)</label><input type="number" x-model="weight" @input="calculateBMI" class="w-full px-4 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:border-accent focus:outline-none"></div></div>
+            <div class="mt-6 p-4 rounded-xl text-center" :class="bmiClass"><p class="text-sm text-zinc-500 dark:text-zinc-400">Your BMI</p><p class="text-4xl font-bold" x-text="bmiValue">0</p><p class="text-sm font-medium mt-1" x-text="bmiCategory">-</p></div>
+            <div class="mt-4 flex justify-between text-xs text-zinc-400"><span>Underweight: {'<'}18.5</span><span>Normal: 18.5-24.9</span><span>Overweight: 25-29.9</span><span>Obese: ≥30</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 8: Password Generator -->
+      <div class="reveal d3">
+        <div x-data="passwordGenerator()" x-init="generatePassword()" class="bg-white dark:bg-zinc-900/70 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 hover:border-accent transition-all h-full">
+          <div class="bg-gradient-to-r from-accent/10 to-accent-light/10 px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center justify-between"><div><h3 class="font-display font-bold text-xl text-zinc-800 dark:text-white">Password Generator</h3><p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Generate strong secure passwords</p></div><span class="text-xs px-3 py-1.5 bg-accent/20 text-accent rounded-full font-medium">Security</span></div>
+          </div>
+          <div class="p-6">
+            <div class="flex gap-2 mb-4"><input type="text" x-model="password" readonly class="flex-1 px-4 py-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-mono text-sm"><button @click="copyPassword" class="px-4 py-3 bg-accent text-white rounded-xl hover:bg-accent-dark transition"><i class="fas fa-copy"></i></button><button @click="generatePassword" class="px-4 py-3 bg-zinc-200 dark:bg-zinc-700 rounded-xl hover:bg-zinc-300 dark:hover:bg-zinc-600 transition"><i class="fas fa-sync-alt"></i></button></div>
+            <div class="mb-4"><label class="block text-sm font-medium mb-1">Length: <span x-text="length" class="text-accent font-bold"></span></label><input type="range" x-model="length" min="6" max="32" @input="generatePassword" class="w-full accent-accent"></div>
+            <div class="grid grid-cols-2 gap-3 text-sm"><label class="flex items-center gap-2"><input type="checkbox" x-model="uppercase" @change="generatePassword" class="accent-accent"> <span>Uppercase (A-Z)</span></label><label class="flex items-center gap-2"><input type="checkbox" x-model="lowercase" @change="generatePassword" class="accent-accent"> <span>Lowercase (a-z)</span></label><label class="flex items-center gap-2"><input type="checkbox" x-model="numbers" @change="generatePassword" class="accent-accent"> <span>Numbers (0-9)</span></label><label class="flex items-center gap-2"><input type="checkbox" x-model="symbols" @change="generatePassword" class="accent-accent"> <span>Symbols (!@#$...)</span></label></div>
+            <div class="mt-4 p-2 rounded-lg text-center text-xs" :class="strengthClass" x-text="strengthText">Strength: </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Back to Home Button -->
+    <div class="reveal d4 mt-12 text-center">
+      <a href="index.html" class="inline-flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-accent transition-all"><i class="fas fa-arrow-left"></i> Back to Home</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="border-t border-zinc-200 dark:border-zinc-800 py-8 mt-12">
+  <div class="max-w-6xl mx-auto px-6 text-center">
+    <p class="text-sm text-zinc-500 dark:text-zinc-400">© <span id="copyrightYear"></span> Afrizal Maulana. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+// Tic Tac Toe Game
+function ticTacToeGame() {
+  return {
+    board: ['', '', '', '', '', '', '', '', ''],
+    currentPlayer: 'X', gameOver: false, winner: null, winCombination: null, scoreX: 0, scoreO: 0, drawCount: 0,
+    initGame() { this.resetGame(); },
+    makeMove(index) {
+      if (this.board[index] !== '' || this.gameOver) return;
+      this.board[index] = this.currentPlayer;
+      if (this.checkWin()) { this.gameOver = true; this.winner = this.currentPlayer; this.currentPlayer === 'X' ? this.scoreX++ : this.scoreO++; return; }
+      if (this.checkDraw()) { this.gameOver = true; this.winner = 'draw'; this.drawCount++; return; }
+      this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+    },
+    checkWin() { const patterns = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; for (let p of patterns) { const [a,b,c] = p; if (this.board[a] && this.board[a] === this.board[b] && this.board[a] === this.board[c]) { this.winCombination = p; return true; } } this.winCombination = null; return false; },
+    checkDraw() { return this.board.every(cell => cell !== ''); },
+    resetGame() { this.board = ['', '', '', '', '', '', '', '', '']; this.currentPlayer = 'X'; this.gameOver = false; this.winner = null; this.winCombination = null; },
+    resetScore() { this.scoreX = 0; this.scoreO = 0; this.drawCount = 0; this.resetGame(); }
+  }
+}
+
+// Calculator
+function calculator() {
+  return {
+    currentOperand: '', previousOperand: '', operation: null,
+    clear() { this.currentOperand = ''; this.previousOperand = ''; this.operation = null; },
+    deleteLast() { this.currentOperand = this.currentOperand.toString().slice(0, -1); },
+    appendNumber(n) { if (n === '.' && this.currentOperand.includes('.')) return; this.currentOperand = this.currentOperand.toString() + n.toString(); },
+    appendOperator(op) { if (this.currentOperand === '') return; if (this.previousOperand !== '') this.calculate(); this.operation = op; this.previousOperand = this.currentOperand; this.currentOperand = ''; },
+    calculate() { let comp; const prev = parseFloat(this.previousOperand), curr = parseFloat(this.currentOperand); if (isNaN(prev) || isNaN(curr)) return; switch (this.operation) { case '+': comp = prev + curr; break; case '-': comp = prev - curr; break; case '*': comp = prev * curr; break; case '/': comp = prev / curr; break; default: return; } this.currentOperand = comp.toString(); this.operation = null; this.previousOperand = ''; }
+  }
+}
+
+// Todo App
+function todoApp() {
+  return {
+    todos: JSON.parse(localStorage.getItem('todos') || '[]'),
+    newTodo: '',
+    init() { this.$watch('todos', val => localStorage.setItem('todos', JSON.stringify(val))); },
+    addTodo() { if (this.newTodo.trim()) { this.todos.push({ text: this.newTodo.trim(), completed: false }); this.newTodo = ''; } },
+    deleteTodo(index) { this.todos.splice(index, 1); },
+    clearCompleted() { this.todos = this.todos.filter(t => !t.completed); }
+  }
+}
+
+// Quote Generator
+function quoteGenerator() {
+  const quotes = [
+    { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+    { text: "Code is like humor. When you have to explain it, it's bad.", author: "Cory House" },
+    { text: "First, solve the problem. Then, write the code.", author: "John Johnson" },
+    { text: "Experience is the name everyone gives to their mistakes.", author: "Oscar Wilde" },
+    { text: "Programming isn't about what you know; it's about what you can figure out.", author: "Chris Pine" },
+    { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+    { text: "Simplicity is the soul of efficiency.", author: "Austin Freeman" },
+    { text: "Talk is cheap. Show me the code.", author: "Linus Torvalds" }
+  ];
+  return {
+    currentQuote: quotes[0],
+    newQuote() { const random = Math.floor(Math.random() * quotes.length); this.currentQuote = quotes[random]; },
+    copyQuote() { navigator.clipboard.writeText(`"${this.currentQuote.text}" — ${this.currentQuote.author}`); alert('Quote copied!'); }
+  }
+}
+
+// Digital Clock
+function digitalClock() {
+  return {
+    time: '', date: '', dayName: '', hour12: '', minute: '', second: '', ampm: '',
+    startClock() { setInterval(() => { const now = new Date(); this.time = now.toLocaleTimeString('id-ID'); this.date = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }); this.dayName = now.toLocaleDateString('id-ID', { weekday: 'long' }); let h = now.getHours(); this.ampm = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; this.hour12 = h.toString().padStart(2, '0'); this.minute = now.getMinutes().toString().padStart(2, '0'); this.second = now.getSeconds().toString().padStart(2, '0'); }, 1000); }
+  }
+}
+
+// Color Palette
+function colorPalette() {
+  return {
+    colors: [],
+    generatePalette() { this.colors = Array.from({ length: 5 }, () => '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')); },
+    copyColor(color) { navigator.clipboard.writeText(color); alert(`${color} copied!`); },
+    copyPalette() { navigator.clipboard.writeText(this.colors.join(', ')); alert('Palette copied!'); }
+  }
+}
+
+// BMI Calculator
+function bmiCalculator() {
+  return {
+    height: 170, weight: 70, bmiValue: 0, bmiCategory: '', bmiClass: '',
+    calculateBMI() { if (this.height > 0 && this.weight > 0) { const h = this.height / 100; const bmi = this.weight / (h * h); this.bmiValue = bmi.toFixed(1); if (bmi < 18.5) { this.bmiCategory = 'Underweight'; this.bmiClass = 'bg-blue-500/10 text-blue-500 border border-blue-500/20'; } else if (bmi < 25) { this.bmiCategory = 'Normal weight'; this.bmiClass = 'bg-green-500/10 text-green-500 border border-green-500/20'; } else if (bmi < 30) { this.bmiCategory = 'Overweight'; this.bmiClass = 'bg-orange-500/10 text-orange-500 border border-orange-500/20'; } else { this.bmiCategory = 'Obese'; this.bmiClass = 'bg-red-500/10 text-red-500 border border-red-500/20'; } } }
+  }
+}
+
+// Password Generator
+function passwordGenerator() {
+  return {
+    password: '', length: 16, uppercase: true, lowercase: true, numbers: true, symbols: false, strengthText: '', strengthClass: '',
+    generatePassword() { const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; const lower = 'abcdefghijkmnopqrstuvwxyz'; const nums = '23456789'; const syms = '!@#$%^&*()_+'; let chars = ''; if (this.uppercase) chars += upper; if (this.lowercase) chars += lower; if (this.numbers) chars += nums; if (this.symbols) chars += syms; if (!chars) chars = lower + nums; let pwd = ''; for (let i = 0; i < this.length; i++) pwd += chars[Math.floor(Math.random() * chars.length)]; this.password = pwd; this.updateStrength(); },
+    updateStrength() { let strength = 0; if (this.length >= 12) strength++; if (this.uppercase && this.lowercase) strength++; if (this.numbers) strength++; if (this.symbols) strength++; if (this.length >= 16) strength++; const map = { 0: { text: 'Very Weak', class: 'bg-red-500/20 text-red-500 border-red-500/30' }, 1: { text: 'Weak', class: 'bg-orange-500/20 text-orange-500 border-orange-500/30' }, 2: { text: 'Medium', class: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30' }, 3: { text: 'Strong', class: 'bg-green-500/20 text-green-500 border-green-500/30' }, 4: { text: 'Very Strong', class: 'bg-emerald-500/20 text-emerald-500 border-emerald-500/30' } }; const s = Math.min(4, strength); this.strengthText = 'Strength: ' + map[s].text; this.strengthClass = map[s].class; },
+    copyPassword() { navigator.clipboard.writeText(this.password); alert('Password copied!'); }
+  }
+}
+
+// Main App
+function app() {
+  return {
+    dark: false, mobileMenu: false, scrolled: false,
+    init() {
+      this.dark = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      this.$watch('dark', v => localStorage.setItem('theme', v ? 'dark' : 'light'));
+      window.addEventListener('scroll', () => { this.scrolled = window.scrollY > 50; });
+      const observer = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }); }, { threshold: 0.1 });
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+      document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+    },
+    toggleDarkMode() { this.dark = !this.dark; }
+  }
+}
+</script>
+</body>
+</html>
