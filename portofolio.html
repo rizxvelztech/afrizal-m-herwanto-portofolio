@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en" x-data="app()" :class="{'dark':dark}" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Afrizal Maulana Portfolio - Developer & Programmer | Tic Tac Toe Game | Calculator">
+<meta name="keywords" content="portfolio, developer, programmer, Afrizal Maulana, Tic Tac Toe, Calculator">
+<title>Afrizal Maulana — Portfolio | Tic Tac Toe & Calculator</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: { display: ['Poppins','sans-serif'], body: ['Inter','sans-serif'] },
+      colors: { accent: '#6366f1', 'accent-light': '#818cf8' }
+    }
+  }
+}
+</script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{font-family:'Inter',sans-serif}
+h1,h2,h3,h4,h5,h6{font-family:'Poppins',sans-serif}
+body{transition:background-color .3s,color .3s}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#6366f1;border-radius:99px}
+
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .6s cubic-bezier(.4,0,.2,1),transform .6s cubic-bezier(.4,0,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
+
+.nl{position:relative}
+.nl::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:currentColor;transition:width .22s}
+.nl:hover::after,.nl.on::after{width:100%}
+.nl.on{font-weight:600}
+
+.shimmer{position:relative;overflow:hidden}
+.shimmer::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:rgba(255,255,255,.2);transform:skewX(-20deg);transition:left .4s}
+.shimmer:hover::after{left:160%}
+
+.card-h{transition:transform .28s, border-color .18s}
+.card-h:hover{transform:translateY(-4px)}
+
+[x-cloak]{display:none!important}
+
+/* Tic Tac Toe Styles */
+.ttt-cell {
+  aspect-ratio: 1 / 1;
+  transition: all 0.2s ease;
+}
+.ttt-cell:hover:not(.disabled) {
+  transform: scale(1.05);
+  background-color: rgba(99, 102, 241, 0.1);
+}
+.win-cell {
+  background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05));
+  position: relative;
+}
+.win-cell::after {
+  content: '✨';
+  position: absolute;
+  font-size: 1.5rem;
+  animation: sparkle 0.5s ease infinite;
+}
+@keyframes sparkle {
+  0%, 100% { opacity: 0.5; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Calculator Styles */
+.calc-btn {
+  transition: all 0.15s ease;
+}
+.calc-btn:active {
+  transform: scale(0.95);
+}
+
+/* Animated Profile Image */
+.profile-container {
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+.profile-glow {
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  70% { box-shadow: 0 0 0 20px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+}
+
+.rotate-slow {
+  animation: rotate 8s linear infinite;
+}
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.profile-img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  border-radius: 1.5rem;
+}
+</style>
+</head>
+
+<body class="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 antialiased">
+
+<!-- ═══ NAVIGATION ═══ -->
+<header class="fixed inset-x-0 top-0 z-50 transition-all duration-300"
+  :class="sc?'bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md shadow-sm':''">
+  <nav class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+
+    <a href="#hero" class="font-display font-bold text-xl tracking-tight">
+      <span class="text-zinc-900 dark:text-white">Afrizal</span><span class="text-accent">Maulana</span>
+    </a>
+
+    <ul class="hidden md:flex items-center gap-8 text-sm">
+      <li><a href="#about" class="nl text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white" :class="s==='about'?'on !text-zinc-900 dark:!text-white':''">About</a></li>
+      <li><a href="#skills" class="nl text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white" :class="s==='skills'?'on !text-zinc-900 dark:!text-white':''">Skills</a></li>
+      <li><a href="#projects" class="nl text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white" :class="s==='projects'?'on !text-zinc-900 dark:!text-white':''">Projects</a></li>
+      <li><a href="#contact" class="nl text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white" :class="s==='contact'?'on !text-zinc-900 dark:!text-white':''">Contact</a></li>
+    </ul>
+
+    <div class="flex items-center gap-3">
+      <button @click="dark=!dark" class="w-9 h-9 flex items-center justify-center rounded-full border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900">
+        <svg x-show="!dark" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        <svg x-show="dark" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+      </button>
+      <button @click="mm=!mm" class="md:hidden w-9 h-9 flex items-center justify-center rounded-full border border-zinc-200 dark:border-zinc-800">
+        <svg x-show="!mm" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg x-show="mm" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div x-show="mm" x-cloak x-transition class="md:hidden bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-900">
+    <ul class="flex flex-col px-6 py-5 gap-4">
+      <li><a href="#about" @click="mm=false" class="block text-zinc-700 dark:text-zinc-300 hover:text-accent">About</a></li>
+      <li><a href="#skills" @click="mm=false" class="block text-zinc-700 dark:text-zinc-300 hover:text-accent">Skills</a></li>
+      <li><a href="#projects" @click="mm=false" class="block text-zinc-700 dark:text-zinc-300 hover:text-accent">Projects</a></li>
+      <li><a href="#contact" @click="mm=false" class="block text-zinc-700 dark:text-zinc-300 hover:text-accent">Contact</a></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+
+<section id="hero" class="relative min-h-screen flex items-center pt-16">
+  <div class="absolute top-1/4 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+  
+  <div class="relative z-10 max-w-6xl mx-auto px-6 py-24 w-full">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+
+      <div>
+        <p class="reveal text-sm font-semibold text-accent tracking-wider uppercase mb-4">Hi, I'm</p>
+        <h1 class="reveal d1 font-display font-bold text-5xl md:text-6xl lg:text-7xl leading-tight mb-6">
+          Afrizal <br><span class="text-accent">Maulana</span>
+        </h1>
+        <p class="reveal d2 text-lg md:text-xl text-zinc-500 dark:text-zinc-400 leading-relaxed mb-8">
+          A passionate <strong class="font-semibold text-zinc-700 dark:text-zinc-300">developer and programmer</strong> enthusiastic about learning the world of programming and creating digital solutions through code.
+        </p>
+        <div class="reveal d3 flex flex-wrap gap-4">
+          <a href="#projects" class="shimmer inline-flex items-center gap-2 bg-accent text-white font-medium px-7 py-3.5 rounded-full hover:bg-accent-light transition-colors text-sm">View Projects</a>
+          <a href="#contact" class="inline-flex items-center gap-2 border border-zinc-300 dark:border-zinc-700 px-7 py-3.5 rounded-full hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors text-sm">Contact Me</a>
+        </div>
+      </div>
+
+      <!-- Animated Profile Image with URL -->
+      <div class="reveal d2 flex justify-center">
+        <div class="profile-container relative w-72 h-72 md:w-80 md:h-80 lg:w-96 lg:h-96">
+          <div class="rotate-slow absolute inset-0 rounded-full border-2 border-dashed border-accent/30"></div>
+          <div class="profile-glow w-full h-full rounded-3xl border-2 border-accent/40 overflow-hidden">
+            <img 
+              src="https://c.top4top.io/p_38008ywca1.jpg"
+              alt="Afrizal Maulana Profile"
+              class="profile-img w-full h-full object-cover"
+            >
+          </div>
+          <div class="absolute -bottom-4 -left-4 bg-accent text-white font-bold text-sm px-4 py-2.5 rounded-2xl shadow-lg animate-pulse">Available</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="about" class="py-24 bg-zinc-50 dark:bg-zinc-900/40">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="grid md:grid-cols-2 gap-16 items-center">
+
+      <div class="order-2 md:order-1">
+        <div class="w-full max-w-sm mx-auto">
+          <div class="bg-white dark:bg-zinc-800 rounded-2xl p-6 shadow-lg hover:scale-105 transition-transform duration-300">
+            <div class="text-center">
+              <div class="text-6xl mb-4 animate-pulse">👨‍💻</div>
+              <h3 class="font-bold text-lg mb-2">My Mission</h3>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400">Building meaningful digital experiences through clean and efficient code</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-1 md:order-2">
+        <p class="reveal text-xs font-semibold text-accent tracking-wider uppercase mb-3">About me</p>
+        <h2 class="reveal d1 font-display font-bold text-4xl md:text-5xl text-zinc-900 dark:text-white leading-tight mb-6">Who am I?</h2>
+        <p class="reveal d2 text-zinc-500 dark:text-zinc-400 leading-relaxed mb-4">
+          I'm <strong class="text-accent">Afrizal Maulana</strong>, a <strong class="text-accent" x-text="currentAge"></strong>-year-old programming enthusiast <span class="text-xs">(born <strong>May 12, 2011</strong>)</span> with a strong passion for technology and software development. I believe that code has the power to solve real-world problems.
+        </p>
+        <p class="reveal d3 text-zinc-500 dark:text-zinc-400 leading-relaxed mb-6">
+          My journey in programming started with curiosity and has grown into a serious commitment to mastering the craft. I am constantly learning, building, and improving my skills to create better solutions.
+        </p>
+        <div class="reveal d4">
+          <p class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">- Why programming?</p>
+          <ul class="space-y-2 text-sm text-zinc-500 dark:text-zinc-400">
+            <li>✓ Love solving complex problems</li>
+            <li>✓ Creating something from nothing is fulfilling</li>
+            <li>✓ Endless opportunities to learn and grow</li>
+            <li>✓ Technology shapes the future</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="skills" class="py-24">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <p class="reveal text-xs font-semibold text-accent tracking-wider uppercase mb-3">What I know</p>
+      <h2 class="reveal d1 font-display font-bold text-4xl md:text-5xl text-zinc-900 dark:text-white">Skills & Technologies</h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+
+      <div class="reveal d1 card-h bg-white dark:bg-zinc-900 rounded-2xl p-8 border border-zinc-100 dark:border-zinc-800 text-center hover:shadow-xl transition-all">
+        <h3 class="font-display font-bold text-xl mb-3">Python</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Building interactive programs, games, and understanding core programming concepts</p>
+      </div>
+
+      <div class="reveal d2 card-h bg-white dark:bg-zinc-900 rounded-2xl p-8 border border-zinc-100 dark:border-zinc-800 text-center hover:shadow-xl transition-all">
+        <h3 class="font-display font-bold text-xl mb-3">Logic & Algorithm</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Flowcharts, pseudocode, systematic problem-solving approach</p>
+      </div>
+
+      <div class="reveal d3 card-h bg-white dark:bg-zinc-900 rounded-2xl p-8 border border-zinc-100 dark:border-zinc-800 text-center hover:shadow-xl transition-all">
+        <h3 class="font-display font-bold text-xl mb-3">HTML & CSS</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Creating responsive and clean website layouts</p>
+      </div>
+
+      <div class="reveal d1 card-h bg-white dark:bg-zinc-900 rounded-2xl p-8 border border-zinc-100 dark:border-zinc-800 text-center hover:shadow-xl transition-all">
+        <h3 class="font-display font-bold text-xl mb-3">JavaScript</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Interactive web applications, DOM manipulation, and dynamic content</p>
+      </div>
+
+      <div class="reveal d2 card-h bg-white dark:bg-zinc-900 rounded-2xl p-8 border border-zinc-100 dark:border-zinc-800 text-center hover:shadow-xl transition-all">
+        <h3 class="font-display font-bold text-xl mb-3">Alpine.js</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Reactive and declarative JavaScript framework</p>
+      </div>
+
+      <div class="reveal d3 card-h bg-white dark:bg-zinc-900 rounded-2xl p-8 border border-zinc-100 dark:border-zinc-800 text-center hover:shadow-xl transition-all">
+        <h3 class="font-display font-bold text-xl mb-3">Tailwind CSS</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Utility-first CSS framework for rapid design</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="projects" class="py-24 bg-zinc-50 dark:bg-zinc-900/40">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <p class="reveal text-xs font-semibold text-accent tracking-wider uppercase mb-3">Featured Projects</p>
+      <h2 class="reveal d1 font-display font-bold text-4xl md:text-5xl text-zinc-900 dark:text-white">My Work</h2>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-8">
+      
+      <!-- Project 1: Tic Tac Toe Game -->
+      <div class="reveal d2">
+        <div x-data="ticTacToeGame()" x-init="initGame()" class="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 h-full">
+          
+          <div class="bg-gradient-to-r from-accent/10 to-accent-light/10 px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center justify-between">
+              <h3 class="font-display font-bold text-xl text-zinc-900 dark:text-white">🎮 Tic Tac Toe Game</h3>
+              <span class="text-xs px-2 py-1 bg-accent/20 text-accent rounded-full">Interactive</span>
+            </div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Click squares to place X or O. Player X goes first!</p>
+          </div>
+
+          <div class="p-6">
+            <div class="text-center mb-4">
+              <div class="inline-block p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-sm">
+                <p x-show="!gameOver && !winner" x-text="currentPlayer === 'X' ? '🎮 Player X\'s Turn' : '⚪ Player O\'s Turn'"></p>
+                <p x-show="winner && winner !== 'draw'" x-text="winner === 'X' ? '🎉 Player X Wins! 🎉' : '🎉 Player O Wins! 🎉'"></p>
+                <p x-show="winner === 'draw'">🤝 Game Draw! 🤝</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 max-w-[250px] mx-auto">
+              <template x-for="(cell, index) in board" :key="index">
+                <button @click="makeMove(index)"
+                  :disabled="cell !== '' || gameOver"
+                  class="ttt-cell disabled:opacity-100 disabled:cursor-not-allowed
+                    w-full aspect-square bg-zinc-100 dark:bg-zinc-800 
+                    hover:bg-accent/10 rounded-xl font-bold text-4xl md:text-5xl
+                    flex items-center justify-center transition-all duration-200
+                    border-2 border-zinc-200 dark:border-zinc-700
+                    hover:border-accent hover:scale-105"
+                  :class="{
+                    'win-cell': winCombination && winCombination.includes(index),
+                    'text-accent': cell === 'X',
+                    'text-orange-500': cell === 'O'
+                  }">
+                  <span x-text="cell"></span>
+                </button>
+              </template>
+            </div>
+
+            <div class="mt-6">
+              <div class="grid grid-cols-3 gap-3 text-center max-w-[250px] mx-auto">
+                <div class="p-2 rounded-lg bg-accent/10">
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400">Score X</p>
+                  <p class="text-xl font-bold text-accent" x-text="scoreX">0</p>
+                </div>
+                <div class="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800">
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400">Draws</p>
+                  <p class="text-xl font-bold text-zinc-600 dark:text-zinc-300" x-text="drawCount">0</p>
+                </div>
+                <div class="p-2 rounded-lg bg-orange-500/10">
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400">Score O</p>
+                  <p class="text-xl font-bold text-orange-500" x-text="scoreO">0</p>
+                </div>
+              </div>
+              
+              <div class="flex justify-center gap-4 mt-4">
+                <button @click="resetGame()" class="px-4 py-2 bg-accent/10 hover:bg-accent/20 text-accent rounded-lg transition-colors text-sm font-medium">
+                  ↻ Reset Game
+                </button>
+                <button @click="resetScore()" class="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 rounded-lg transition-colors text-sm font-medium">
+                  Reset Score
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-zinc-50 dark:bg-zinc-800/50 px-6 py-3 border-t border-zinc-200 dark:border-zinc-800">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 text-center">
+              Win animations & score tracking
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Project 2: Simple Calculator -->
+      <div class="reveal d3">
+        <div x-data="calculator()" class="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 h-full">
+          
+          <div class="bg-gradient-to-r from-accent/10 to-accent-light/10 px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center justify-between">
+              <h3 class="font-display font-bold text-xl text-zinc-900 dark:text-white">🧮 Simple Calculator</h3>
+              <span class="text-xs px-2 py-1 bg-accent/20 text-accent rounded-full">Utility</span>
+            </div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Perform basic arithmetic operations</p>
+          </div>
+
+          <div class="p-6">
+            <div class="mb-4">
+              <div class="bg-zinc-100 dark:bg-zinc-800 rounded-xl p-4 text-right">
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 h-5" x-text="previousOperand || '&nbsp;'"></p>
+                <p class="text-3xl font-mono font-semibold text-zinc-900 dark:text-white break-all" x-text="currentOperand || '0'"></p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2">
+              <button @click="clear()" class="calc-btn bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 font-semibold py-3 rounded-xl transition-colors text-sm">C</button>
+              <button @click="deleteLast()" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3 rounded-xl transition-colors text-sm">⌫</button>
+              <button @click="appendOperator('/')" class="calc-btn bg-accent/10 hover:bg-accent/20 text-accent font-semibold py-3 rounded-xl transition-colors text-sm">÷</button>
+              <button @click="appendOperator('*')" class="calc-btn bg-accent/10 hover:bg-accent/20 text-accent font-semibold py-3 rounded-xl transition-colors text-sm">×</button>
+              
+              <button @click="appendNumber('7')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3 rounded-xl transition-colors text-sm">7</button>
+              <button @click="appendNumber('8')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3 rounded-xl transition-colors text-sm">8</button>
+              <button @click="appendNumber('9')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3 rounded-xl transition-colors text-sm">9</button>
+              <button @click="appendOperator('-')" class="calc-btn bg-accent/10 hover:bg-accent/20 text-accent font-semibold py-3 rounded-xl transition-colors text-sm">-</button>
+              
+              <button @click="appendNumber('4')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3 rounded-xl transition-colors text-sm">4</button>
+              <button @click="appendNumber('5')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3 rounded-xl transition-colors text-sm">5</button>
+              <button @click="appendNumber('6')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3 rounded-xl transition-colors text-sm">6</button>
+              <button @click="appendOperator('+')" class="calc-btn bg-accent/10 hover:bg-accent/20 text-accent font-semibold py-3 rounded-xl transition-colors text-sm">+</button>
+              
+              <button @click="appendNumber('1')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3 rounded-xl transition-colors text-sm">1</button>
+              <button @click="appendNumber('2')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3 rounded-xl transition-colors text-sm">2</button>
+              <button @click="appendNumber('3')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3 rounded-xl transition-colors text-sm">3</button>
+              <button @click="calculate()" class="calc-btn bg-accent hover:bg-accent-light text-white font-semibold py-3 rounded-xl transition-colors row-span-2">=</button>
+              
+              <button @click="appendNumber('0')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3 rounded-xl transition-colors col-span-2">0</button>
+              <button @click="appendNumber('.')" class="calc-btn bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold py-3 rounded-xl transition-colors">.</button>
+            </div>
+          </div>
+
+          <div class="bg-zinc-50 dark:bg-zinc-800/50 px-6 py-3 border-t border-zinc-200 dark:border-zinc-800">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 text-center">
+              ➕ Supports: + , - , × , ÷
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Project Description -->
+    <div class="reveal d4 mt-10 text-center max-w-3xl mx-auto">
+      <p class="text-sm text-zinc-600 dark:text-zinc-400">
+        🎮 <strong>Tic Tac Toe</strong> — Two-player interactive game with score tracking & win animations<br>
+        🧮 <strong>Simple Calculator</strong> — Perform basic arithmetic operations with clean interface
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<section id="contact" class="py-24">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-3xl p-8 md:p-12 relative overflow-hidden">
+      
+      <div class="relative z-10 grid md:grid-cols-2 gap-8 items-start">
+
+        <div>
+          <p class="reveal text-xs font-semibold text-accent tracking-wider uppercase mb-3">Get in touch</p>
+          <h2 class="reveal d1 font-display font-bold text-3xl md:text-4xl text-white leading-tight mb-4">Let's connect</h2>
+          <p class="reveal d2 text-zinc-400 leading-relaxed mb-6 text-sm">I'm open to discussions, collaborations, or just a friendly chat about technology and programming.</p>
+
+          <div class="reveal d3 flex flex-col gap-3">
+            <a href="https://wa.me/6289665432305" target="_blank" class="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors text-sm">
+              <span class="w-8 h-8 flex items-center justify-center bg-zinc-800 rounded-lg group-hover:bg-accent/20 transition-colors">📱</span>
+              <span>+62 896-6543-2305</span>
+            </a>
+            <a href="mailto:rizalmaulgari@gmail.com" class="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors text-sm">
+              <span class="w-8 h-8 flex items-center justify-center bg-zinc-800 rounded-lg group-hover:bg-accent/20 transition-colors">📧</span>
+              <span>rizalmaulgari@gmail.com</span>
+            </a>
+            <a href="https://instagram.com/afrizal_m.h" target="_blank" class="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors text-sm">
+              <span class="w-8 h-8 flex items-center justify-center bg-zinc-800 rounded-lg group-hover:bg-accent/20 transition-colors">📷</span>
+              <span>@afrizal_m.h</span>
+            </a>
+            <a href="https://github.com/rizxvelz" target="_blank" class="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors text-sm">
+              <span class="w-8 h-8 flex items-center justify-center bg-zinc-800 rounded-lg group-hover:bg-accent/20 transition-colors">💻</span>
+              <span>github.com/rizxvelz</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="reveal d2">
+          <div class="bg-white dark:bg-zinc-900 rounded-xl p-5">
+            <p class="text-center text-zinc-500 dark:text-zinc-400 text-xs mb-3">📞 Feel free to reach out</p>
+            <a href="https://wa.me/6289665432305" class="shimmer w-full inline-flex justify-center items-center gap-2 bg-accent text-white font-semibold text-sm py-2.5 rounded-lg hover:bg-accent-light transition-colors">Message me on WhatsApp</a>
+            <p class="text-center text-xs text-zinc-400 mt-3">Fast response</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="border-t border-zinc-100 dark:border-zinc-900 py-6">
+  <div class="max-w-6xl mx-auto px-6 text-center">
+    <p class="text-xs text-zinc-400">© <span id="yr"></span> Copyright Afrizal Maulana</p>
+  </div>
+</footer>
+
+<script>
+// Tic Tac Toe Game Logic
+function ticTacToeGame() {
+  return {
+    board: ['', '', '', '', '', '', '', '', ''],
+    currentPlayer: 'X',
+    gameOver: false,
+    winner: null,
+    winCombination: null,
+    scoreX: 0,
+    scoreO: 0,
+    drawCount: 0,
+
+    initGame() {
+      this.resetGame();
+    },
+
+    makeMove(index) {
+      if (this.board[index] !== '' || this.gameOver) return;
+      
+      this.board[index] = this.currentPlayer;
+      
+      if (this.checkWin()) {
+        this.gameOver = true;
+        this.winner = this.currentPlayer;
+        if (this.currentPlayer === 'X') {
+          this.scoreX++;
+        } else {
+          this.scoreO++;
+        }
+        return;
+      }
+      
+      if (this.checkDraw()) {
+        this.gameOver = true;
+        this.winner = 'draw';
+        this.drawCount++;
+        return;
+      }
+      
+      this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+    },
+
+    checkWin() {
+      const winPatterns = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+      
+      for (let pattern of winPatterns) {
+        const [a,b,c] = pattern;
+        if (this.board[a] && this.board[a] === this.board[b] && this.board[a] === this.board[c]) {
+          this.winCombination = pattern;
+          return true;
+        }
+      }
+      this.winCombination = null;
+      return false;
+    },
+
+    checkDraw() {
+      return this.board.every(cell => cell !== '');
+    },
+
+    resetGame() {
+      this.board = ['', '', '', '', '', '', '', '', ''];
+      this.currentPlayer = 'X';
+      this.gameOver = false;
+      this.winner = null;
+      this.winCombination = null;
+    },
+
+    resetScore() {
+      this.scoreX = 0;
+      this.scoreO = 0;
+      this.drawCount = 0;
+      this.resetGame();
+    }
+  }
+}
+
+// Calculator Logic
+function calculator() {
+  return {
+    currentOperand: '',
+    previousOperand: '',
+    operation: null,
+
+    clear() {
+      this.currentOperand = '';
+      this.previousOperand = '';
+      this.operation = null;
+    },
+
+    deleteLast() {
+      this.currentOperand = this.currentOperand.toString().slice(0, -1);
+    },
+
+    appendNumber(number) {
+      if (number === '.' && this.currentOperand.includes('.')) return;
+      this.currentOperand = this.currentOperand.toString() + number.toString();
+    },
+
+    appendOperator(operator) {
+      if (this.currentOperand === '') return;
+      if (this.previousOperand !== '') {
+        this.calculate();
+      }
+      this.operation = operator;
+      this.previousOperand = this.currentOperand;
+      this.currentOperand = '';
+    },
+
+    calculate() {
+      let computation;
+      const prev = parseFloat(this.previousOperand);
+      const current = parseFloat(this.currentOperand);
+      if (isNaN(prev) || isNaN(current)) return;
+      
+      switch (this.operation) {
+        case '+':
+          computation = prev + current;
+          break;
+        case '-':
+          computation = prev - current;
+          break;
+        case '*':
+          computation = prev * current;
+          break;
+        case '/':
+          computation = prev / current;
+          break;
+        default:
+          return;
+      }
+      
+      this.currentOperand = computation.toString();
+      this.operation = null;
+      this.previousOperand = '';
+    }
+  }
+}
+
+function app() {
+  return {
+    dark: false,
+    mm: false,
+    sc: false,
+    s: 'hero',
+    currentAge: 0,
+
+    init() {
+      this.dark = localStorage.getItem('theme') === 'dark' ||
+        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      this.$watch('dark', v => localStorage.setItem('theme', v ? 'dark' : 'light'));
+
+      // Calculate age from May 12, 2011
+      this.updateAge();
+      setInterval(() => this.updateAge(), 1000 * 60 * 60 * 24); // Update every day
+
+      window.addEventListener('scroll', () => {
+        this.sc = window.scrollY > 20;
+        this.updateSection();
+      });
+
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); } });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+      document.getElementById('yr').textContent = new Date().getFullYear();
+    },
+
+    updateAge() {
+      const birth = new Date(2011, 4, 12); // May 12, 2011
+      const today = new Date();
+      
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      
+      this.currentAge = age;
+    },
+
+    updateSection() {
+      const ids = ['contact','projects','skills','about','hero'];
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && window.scrollY >= el.offsetTop - 130) { this.s = id; return; }
+      }
+    }
+  }
+}
+</script>
+
+</body>
+</html>
